@@ -1,5 +1,5 @@
 pub struct Ahorcado {
-    letras: Vec<Letra>,
+    palabra_actual: Vec<Letra>,
     intentos: i64,
     letras_ingresadas: Vec<char>,
 }
@@ -23,24 +23,23 @@ enum Letra {
 
 impl Ahorcado {
     pub fn new(palabra: String, intentos: i64) -> Ahorcado {
-        let longitud_palabra = palabra.len();
-        let letras = palabra.chars().map(|x| Letra::Cubierta(x)).collect();
+        let palabra_actual = palabra.chars().map(|x| Letra::Cubierta(x)).collect();
 
         Ahorcado {
-            letras,
+            palabra_actual,
             intentos,
             letras_ingresadas: Vec::new(),
         }
     }
 
     pub fn is_letra(&self, letra: &char) -> bool {
-        self.letras.iter().any(|x| match x {
+        self.palabra_actual.iter().any(|x| match x {
             Letra::Descubierta(y) => letra == y,
             Letra::Cubierta(y) => letra == y,
         })
     }
 
-    pub fn adivinar_letra(&self, letra: &char) {
+    pub fn adivinar_letra(mut self, letra: &char) {
         if self.is_letra(letra) {
             self.descubrir_letra(letra);
         } else {
@@ -49,22 +48,37 @@ impl Ahorcado {
         }
     }
 
-    pub fn descubrir_letra(&self, letra: &char) {
-        self.letras.iter().map(|x| match x {
-            Letra::Cubierta(y) => {
-                if letra == y {
-                    Letra::Descubierta(*y)
-                } else {
-                    Letra::Cubierta(*y)
-                }
-            },
-            Letra::Descubierta(y) => Letra::Descubierta(*y),
-        });
+    pub fn descubrir_letra(& mut self, letra: &char) {
+        for i in 0..self.palabra_actual.len(){
+            let letra_actual = &self.palabra_actual[i];
+            match *letra_actual {
+                Letra::Cubierta(letra_cubierta) =>{
+                    if *letra == letra_cubierta {
+                        self.palabra_actual[i] = Letra::Descubierta(*letra);
+                    }
+                },
+                _ => {},
+            }
+        }
+        
+        
     }
 
-    // |pub fn show(&self) {
+    pub fn mostrar_estado_palabra(&self){
+        for letra in self.palabra_actual.iter(){
+            match letra {
+                Letra::Descubierta(letra_descubierta) => {
+                    print!("{}", *letra_descubierta);
+                },
+                Letra::Cubierta(letra_cubierta) =>{
+                    print!("_");
+                },
+            }
+        }
+        println!("");
+    }
 
-    // }
+
 }
 
 #[cfg(test)]
@@ -85,13 +99,14 @@ mod tests {
 
     #[test]
     pub fn test_descubrir_letra() {
-        let ahorcado = Ahorcado::new("hola".to_string(), 5);
+        let mut ahorcado = Ahorcado::new("hola".to_string(), 5);
         ahorcado.descubrir_letra(&'h');
-        let letra: char;
-        if let Letra::Descubierta(x) = ahorcado.letras[0] {
-            letra = x;
-        }
+        let _letra: char;
+        
+        let _letra = &ahorcado.palabra_actual[0];
 
-        assert_eq!('h', letra);
+        ahorcado.mostrar_estado_palabra();
+        
+        assert_eq!(" ","h___");
     }
 }
