@@ -1,8 +1,11 @@
 use ejercicios_taller::Ahorcado;
 use std::io::{self, Write};
+use std::fs;
 
 fn main() {
-    let mut ahorcado = Ahorcado::new("hola", 5);
+    let mut palabra = fs::read_to_string("file.txt").expect("Error leyendo palabra");
+    palabra.pop();
+    let mut ahorcado = Ahorcado::new(&palabra, 5);
 
     println!("");
     println!("Bienvenido al ahorcado de FIUBA!\n");
